@@ -25,6 +25,7 @@ contexts:
     - include: keywords
     - include: numbers
     - include: double_quote_strings
+    - include: angle_quote_strings
     - include: single_qoute_strings
     - include: built_in_consts
     - include: vars
@@ -37,7 +38,7 @@ contexts:
     # strings in YAML. When using single quoted strings, only single quotes
     # need to be escaped: this is done by using two single quotes next to each
     # other.
-    - match: '\b(if|elsif|else|unless|with|for|given|when|default|loop|my|while|return|returns|repeat|until|orwith|without|use|is|has|try|gather|start|react|supply|tap|emit|does|self|fail|enum|role)\b'
+    - match: '\b(if|elsif|else|unless|with|for|given|when|default|loop|my|while|return|returns|repeat|until|orwith|without|use|is|has|try|gather|start|react|supply|tap|emit|does|self|fail|enum|role|constant)\b'
       scope: keyword.control.raku
 
   built_in_subs:
@@ -123,6 +124,15 @@ contexts:
           scope: punctuation.definition.string.end.raku
           pop: true
 
+  angle_quote_strings:
+    - match: '<'
+      scope: punctuation.definition.string.begin.raku
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.angle.raku
+        - match: '>'
+          scope: punctuation.definition.string.end.raku
+          pop: true
 
   line_comments:
     # line_comments begin with a '#' and finish at the end of the line.
