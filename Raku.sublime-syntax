@@ -28,6 +28,8 @@ contexts:
     # like {} () [] and ;
     - include: sections
 
+    - include: vars
+
     # NOTE: write before comprassion operators
     - include: angle_quote_strings
     - include: operators
@@ -36,7 +38,6 @@ contexts:
     - include: double_quote_strings
     - include: single_qoute_strings
     - include: built_in_consts
-    - include: vars
 
     - include: storage_types
     - include: storage_modifier
@@ -58,19 +59,17 @@ contexts:
       scope: support.function.raku
 
   vars:
-    - match: '(\$|@|%)\S+?.\b'
+    - match: '(\$|@|%|&)\S+?.\b'
       captures:
         1: punctuation.definition.variable
       scope: variable.other.raku
 
   regex:
-    - match: '(?x)(?<= ^ | ^\s | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/])'
-      scope: string.regexp.begin.raku
-      push:
-        - meta_scope: string.regexp.raku
-        - match: '(/)'
-          scope: string.regexp.end.raku
-          pop: true
+    - match: '(?x)(?<= ^ | ^\s | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/]) ([^\n]+) ([/])'
+      captures:
+        1: string.regexp.begin.raku
+        2: string.regexp.raku
+        3: string.regexp.end.raku
 
 
 
@@ -81,7 +80,7 @@ contexts:
     - include: multi_symbol_operators
 
   simple_operators:
-    - match: '(?x) (?<!\(|\*)\%| [\^\+><\*\!=&\?~\/\|]| (?<!\$)\.| (?<!:):(?!:)| (?<=\s)\-(?=[\s\(\{\[])| (?<!\w)[o\x{2218}](?!\w)'
+    - match: '(?x) (?<!\(|\*)\%| [\^\+><\*\!=\?~\/\|]| (?<!\$)\.| (?<!:):(?!:)| (?<=\s)\-(?=[\s\(\{\[])| (?<!\w)[o\x{2218}](?!\w)'
       scope: keyword.operator.generic.raku
 
   access_operator:
@@ -89,7 +88,7 @@ contexts:
       scope: keyword.operator.colon.raku
 
   word_operators:
-    - match: '(?x)\b( div|mod|gcd|lcm|x|xx|temp|let|but|cmp|leg| eq|ne|gt|ge|lt|le|before|after|eqv|min|max|ff|fff|not|so|Z| and|andthen|or|orelse )\b(?!\-)| \b(X)(?!:)\b'
+    - match: '(?x)\b(?<!\$|@|&|%)( div|mod|gcd|lcm|x|xx|temp|let|but|cmp|leg| eq|ne|gt|ge|lt|le|before|after|eqv|min|max|ff|fff|not|so|Z| and|andthen|or|orelse )\b(?!\-)| \b(X)(?!:)\b'
       scope: keyword.operator.word.raku
 
   multi_symbol_operators:
