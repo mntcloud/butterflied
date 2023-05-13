@@ -17,19 +17,31 @@ contexts:
     - include: in_line_comments
     - include: line_comments
     - include: doc_comments
+    #- include: figure_brackets
 
   main:
     # The main context is the initial starting point of our syntax.
     # Include other contexts from here (or specify them directly).
     - include: regex
     - include: keywords
+
+    # like {} () [] and ;
+    - include: sections
+
+    # NOTE: write before comprassion operators
+    - include: angle_quote_strings
+    - include: operators
+
     - include: numbers
     - include: double_quote_strings
-    - include: angle_quote_strings
     - include: single_qoute_strings
     - include: built_in_consts
     - include: vars
+
     - include: storage_types
+    - include: storage_modifier
+    - include: trait
+
     - include: built_in_subs
 
   keywords:
@@ -38,11 +50,10 @@ contexts:
     # strings in YAML. When using single quoted strings, only single quotes
     # need to be escaped: this is done by using two single quotes next to each
     # other.
-    - match: '\b(if|elsif|else|unless|with|for|given|when|default|loop|my|while|return|returns|repeat|until|orwith|without|use|is|has|try|gather|start|react|supply|tap|emit|does|self|fail|enum|role|constant)\b'
+    - match: '\b(if|elsif|else|unless|with|for|given|when|default|loop|my|while|return|returns|repeat|until|orwith|without|use|is|has|try|gather|start|react|supply|tap|emit|does|self|fail|enum|role|constant|unit|module|our|subset)\b'
       scope: keyword.control.raku
 
   built_in_subs:
-    # 5/18/18: needs to be expanded upon quite a bit...
     - match: '\b(say|print|uc|chars|flip|numerator|denominator|nude|is-prime|WHAT|slurp|warn|IO|lines|mkdir|rmdir|e|map|reverse|exit|sort|unique|kv|keys|values|open|get|push|prompt|run|shell|spurt|dir|die|defined|last|do)\b'
       scope: support.function.raku
 
@@ -53,13 +64,38 @@ contexts:
       scope: variable.other.raku
 
   regex:
-    - match: '(m|rx|)\/'
+    - match: '(?x)(?<= ^ | ^\s | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/])'
       scope: string.regexp.begin.raku
       push:
         - meta_scope: string.regexp.raku
-        - match: '/'
+        - match: '(/)'
           scope: string.regexp.end.raku
           pop: true
+
+
+
+  operators:
+    - include: simple_operators
+    - include: word_operators
+    - include: access_operator
+    - include: multi_symbol_operators
+
+  simple_operators:
+    - match: '(?x) (?<!\(|\*)\%| [\^\+><\*\!=&\?~\/\|]| (?<!\$)\.| (?<!:):(?!:)| (?<=\s)\-(?=[\s\(\{\[])| (?<!\w)[o\x{2218}](?!\w)'
+      scope: keyword.operator.generic.raku
+
+  access_operator:
+    - match: '(?x)\b(?<![\-])( :: )?(exists)(?!\-)\b(?!\s*=>)'
+      scope: keyword.operator.colon.raku
+
+  word_operators:
+    - match: '(?x)\b( div|mod|gcd|lcm|x|xx|temp|let|but|cmp|leg| eq|ne|gt|ge|lt|le|before|after|eqv|min|max|ff|fff|not|so|Z| and|andthen|or|orelse )\b(?!\-)| \b(X)(?!:)\b'
+      scope: keyword.operator.word.raku
+
+  multi_symbol_operators:
+    - match: '(?x) <== | ==> | <=> | => | --> | -> | \+\| | \+\+ | -- | \*\* | \?\?\? | \?\? | \!\!\! | \!\! | && | \+\^ | \?\^ | %% | \+& | \+< | \+> | \+\^ | \.\.(?!\.) | \.\.\^ | \^\.\. | \^\.\.\^ | \?\| | !=(?!\=) | !==(?!\=) | <=(?!>) | >= | === | == | =:= | ~~ | \x{2245} | \|\| | \^\^ | \/\/ | := | ::= | \.\.\.'
+      scope: keyword.operator.multi-symbol.raku
+
 
   numbers:
     - match: '\b(\-)?[0-9]*\.?[0-9]+\b'
@@ -75,10 +111,14 @@ contexts:
     - match: '\b(True|False|Nil)\b'
       scope: constant.language.raku
 
+  trait:
+    - match: '(?x)\b(?<![\-:])( prec|irs|ofs|ors|export|raw|deep |binary|unary|reparsed|rw|parsed |cached|readonly|defequiv|will |ref|copy|inline|tighter|looser |equiv|assoc|required|pure )(?!\-)\b  (?!\s*=>)'
+      scope: entity.name.type.trait.raku
+
   storage_types:
     - match: '\b(Mu|Any|Cool|Str|Int|Rat|Bool|Sub|u?int8|u?int16|u?int32|u?int64|byte|num32|num64|token|regex|rule)\b'
       scope: storage.type.raku
-    - match: '\b(sub|multi|submethod|method)\b ([A-Za-z0-9_-]+)'
+    - match: '\b(sub|multi|submethod|method)\b ([A-Za-z0-9_\-!]+)'
       scope: storage.type.raku
       captures:
         1: meta.function.raku
@@ -94,8 +134,12 @@ contexts:
         1: meta.grammar.raku
         2: entity.name.grammar.raku
 
+  storage_modifier:
+    - match: '(?x)\b(?<![\-:]) (is|does|as|but|trusts|of|returns|handles|where|augment|supersede) (?!\-)\b (?!\s*=>)'
+      scope: storage.modifier.type.constraints.raku
+
   char_escapes:
-    - match: '\\.'
+    - match: '\.'
       scope: constant.character.escape.raku
 
   double_quote_strings:
@@ -125,14 +169,15 @@ contexts:
           pop: true
 
   angle_quote_strings:
-    - match: '<'
-      scope: punctuation.definition.string.begin.raku
-      push:
-        - meta_include_prototype: false
-        - meta_scope: string.quoted.angle.raku
-        - match: '>'
-          scope: punctuation.definition.string.end.raku
-          pop: true
+    - match: '<([^\n>]+)>'
+      captures:
+        1: string.angled.raku
+      pop: true
+
+  sections:
+    # literal strings begin and end with single quotes, no escapes
+    - match: '{|\[|\(|\)|\]|}|;'
+      scope: punctuation.section.raku
 
   line_comments:
     # line_comments begin with a '#' and finish at the end of the line.
@@ -194,7 +239,10 @@ contexts:
         - match: '\>'
           pop: true
 
-#These contexts are pretty much exclusively for nested brackets in comments
+  # TODO: interpolation
+  # interpolation:
+
+  # These contexts are pretty much exclusively for nested brackets in comments
   matching_parentheses:
     - match: '\('
       push:
