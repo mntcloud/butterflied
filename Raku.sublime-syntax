@@ -152,7 +152,7 @@ contexts:
     - meta_include_prototype: false
     - meta_scope: string.quoted.double.raku
     - include: char_escapes
-    - match: '"'
+    - match: '(?<![\\])"'
       scope: punctuation.definition.string.end.raku
       pop: true
 
