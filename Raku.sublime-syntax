@@ -1680,7 +1680,6 @@ contexts:
                [\-'] [\p{Alpha}_]
             )*
         )
-      scope: meta.variable.container.raku
       captures:
         1: variable.other.identifier.sigil.raku
         2: support.class.twigil.raku
