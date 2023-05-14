@@ -37,6 +37,7 @@ contexts:
     - include: numbers
     - include: double_quote_strings
     - include: single_qoute_strings
+    - include: heredoc_string
     - include: built_in_consts
 
     - include: storage_types
@@ -65,12 +66,11 @@ contexts:
       scope: variable.other.raku
 
   regex:
-    - match: '(?x)(?<= ^ | ^\s | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/]) ([^\n]+) ([/])'
+    - match: '(?x)(?<= ^ | ^\s | rx | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/]) (.*) ([/])'
       captures:
         1: string.regexp.begin.raku
         2: string.regexp.raku
         3: string.regexp.end.raku
-
 
 
   operators:
@@ -112,7 +112,7 @@ contexts:
 
   trait:
     - match: '(?x)\b(?<![\-:])( prec|irs|ofs|ors|export|raw|deep |binary|unary|reparsed|rw|parsed |cached|readonly|defequiv|will |ref|copy|inline|tighter|looser |equiv|assoc|required|pure )(?!\-)\b  (?!\s*=>)'
-      scope: entity.name.type.trait.raku
+      scope: entity.name.trait.raku
 
   storage_types:
     - match: '\b(Mu|Any|Cool|Str|Int|Rat|Bool|Sub|u?int8|u?int16|u?int32|u?int64|byte|num32|num64|token|regex|rule)\b'
@@ -140,6 +140,17 @@ contexts:
   char_escapes:
     - match: '\.'
       scope: constant.character.escape.raku
+
+  heredoc_string:
+    - match: 'q:to\/(.*)\/;\s?+'
+      push: inside_heredoc_string
+
+  inside_heredoc_string:
+    - meta_include_prototype: false
+    - meta_content_scope: string.multiline.raku
+    - include: char_escapes
+    - match: ^\1
+      pop: true
 
   double_quote_strings:
     # interpolated strings begin and end with double quotes, and use backslashes as an escape
