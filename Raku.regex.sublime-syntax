@@ -1,0 +1,128 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: Regular Expressions in Raku
+file_extensions: []
+scope: source.regexp.raku
+contexts:
+  main:
+    - include: regexp
+  re_strings:
+    - match: (?<!\\)\'
+      push:
+        - meta_scope: string.literal.raku
+        - match: (?<=\\\\)\'|(?<!\\)\'
+          pop: true
+    - match: (?<!\\)‘
+      push:
+        - meta_scope: string.literal.raku
+        - match: (?<=\\\\)\’|(?<!\\)’
+          pop: true
+        - include: scope:source.raku#q_left_single_right_single_string_content
+    - match: (?<!\\)\"
+      push:
+        - meta_scope: string.literal.raku
+        - match: (?<=\\\\)\"|(?<!\\)\"
+          pop: true
+  regexp:
+    - match: '(^[ \t]+)?(?=#)'
+      captures:
+        1: punctuation.whitespace.comment.leading.raku
+      push:
+        - match: (?!\G)
+          pop: true
+        - match: '#'
+          captures:
+            0: punctuation.definition.comment.raku
+          push:
+            - meta_scope: comment.line.number-sign.raku
+            - match: \n
+              pop: true
+    - include: re_strings
+    - match: '\\[dDhHnNsStTvVwW]'
+      scope: constant.character.escape.class.regexp.raku
+    - match: ':\w+'
+      scope: entity.name.section.adverb.raku
+    - match: \^\^|(?<!\.)\^(?!\.)|\$\$|\$(?!\d|<)|<<|>>
+      scope: entity.name.section.boundary.regexp.raku
+    - match: (?<!\\)\$\d
+      scope: keyword.other.special-method.match.variable.numbered.perlt6e
+    - match: (\$)(\<)(\w+)(\>)\s*(=)
+      scope: meta.match.variable.raku
+      captures:
+        1: variable.other.identifier.sigil.regexp.perl6
+        2: support.class.match.name.delimiter.regexp.raku
+        3: variable.other.identifier.regexp.perl6
+        4: support.class.match.name.delimiter.regexp.raku
+        5: storage.modifier.match.assignment.regexp.raku
+    - match: '(\<(?:\?|\!)\{)'
+      captures:
+        1: punctuation.section.embedded.begin.raku
+      push:
+        - meta_scope: meta.interpolation.raku
+        - match: '(\}\>)'
+          captures:
+            1: punctuation.section.embedded.end.raku
+          pop: true
+        - include: scope:source.raku
+    - match: <\(|\)>
+      scope: keyword.operator.capture.marker.regexp.raku
+    - match: (?!\\)<
+      captures:
+        0: punctuation.delimiter.property.regexp.raku
+      push:
+        - meta_scope: meta.property.regexp.raku
+        - match: '>'
+          captures:
+            0: punctuation.delimiter.property.regexp.raku
+          pop: true
+        - include: re_strings
+        - match: (\?|\!)(before|after)\s+
+          captures:
+            1: keyword.operator.negativity.raku
+            2: entity.name.section.assertion.raku
+          push:
+            - meta_scope: meta.assertion.lookaround.raku
+            - match: (?=>)
+              pop: true
+            - include: regexp
+        - match: (\w+)(=)
+          scope: meta.capture.assignment.raku
+          captures:
+            1: entity.name.function.capturename.raku
+            2: storage.modifier.capture.assignment.raku
+        - match: (:)(\w+)
+          scope: meta.property.name.regexp.raku
+          captures:
+            1: punctuation.definition.property.regexp.raku
+            2: variable.other.identifier.property.regexp.raku
+        - match: '[+|&\-^]'
+          scope: keyword.operator.property.regexp.raku
+        - match: '\['
+          captures:
+            0: keyword.operator.charclass.open.regexp.raku
+          push:
+            - meta_content_scope: constant.character.custom.property.regexp.raku
+            - match: '\]'
+              captures:
+                0: keyword.operator.charclass.close.regexp.raku
+              pop: true
+            - include: scope:source.raku#hex_escapes
+            - match: '(?<!\\)\\\]'
+              scope: constant.character.custom.property.regexp.raku
+        - match: \.\w+\b
+          scope: comment.suppressed.capture.property.regexp.raku
+        - match: \b\w+\b
+          scope: variable.other.identifier.regexname.raku
+        - match: (?<=\w)\(
+          push:
+            - meta_scope: meta.rule.signature.raku
+            - match: \)
+              pop: true
+            - include: scope:source.raku
+    - match: (?<=\.\.)\*
+      scope: variable.other.identifier.whatever.regexp.raku
+    - match: \+|\*\*|\*|\?|%|\.\.|\.|(?<=\.\.|\s|\d)\^
+      scope: keyword.operator.quantifiers.regexp.raku
+    - match: '(?<!\\)\|{1,2}'
+      scope: support.function.alternation.regexp.raku

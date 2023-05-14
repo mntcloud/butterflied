@@ -1,290 +1,1687 @@
 %YAML 1.2
 ---
-# See http://www.sublimetext.com/docs/3/syntax.html
+# http://www.sublimetext.com/docs/syntax.html
+name: Raku
 file_extensions:
   - raku
-  - rakutest
   - rakumod
-  - t
+  - rakudoc
+  - rakutest
+first_line_match: '(?x) ^ \s* (?: use \s v6 | =begin \s pod | =comment | \#!(?: (?:perl6|raku)|/.*(?:perl6|raku) (?! \S)) | my\s*class )'
 scope: source.raku
-
-# This syntax definition based on https://github.com/silentTeee/sublimetext3-perl6-syntax
-
+version: 2
 contexts:
-  # The prototype context is prepended to all contexts but those setting
-  # meta_include_prototype: false.
-  prototype:
-    - include: in_line_comments
-    - include: line_comments
-    - include: doc_comments
-    #- include: figure_brackets
-
   main:
-    # The main context is the initial starting point of our syntax.
-    # Include other contexts from here (or specify them directly).
-    - include: regex
-    - include: keywords
-
-    # like {} () [] and ;
-    - include: sections
-
-    - include: vars
-
-    # NOTE: write before comprassion operators
-    - include: angle_quote_strings
-    - include: operators
-
-    - include: numbers
-    - include: double_quote_strings
-    - include: single_qoute_strings
-    - include: heredoc_string
-    - include: built_in_consts
-
-    - include: storage_types
-    - include: storage_modifier
-    - include: trait
-
-    - include: built_in_subs
-
-  keywords:
-    # Keywords are if, else for and while.
-    # Note that blackslashes don't need to be escaped within single quoted
-    # strings in YAML. When using single quoted strings, only single quotes
-    # need to be escaped: this is done by using two single quotes next to each
-    # other.
-    - match: '\b(if|elsif|else|unless|with|for|given|when|default|loop|my|while|return|returns|repeat|until|orwith|without|use|is|has|try|gather|start|react|supply|tap|emit|does|self|fail|enum|role|constant|unit|module|our|subset)\b'
-      scope: keyword.control.raku
-
-  built_in_subs:
-    - match: '\b(say|print|uc|chars|flip|numerator|denominator|nude|is-prime|WHAT|slurp|warn|IO|lines|mkdir|rmdir|e|map|reverse|exit|sort|unique|kv|keys|values|open|get|push|prompt|run|shell|spurt|dir|die|defined|last|do)\b'
-      scope: support.function.raku
-
-  vars:
-    - match: '(\$|@|%|&)\S+?.\b'
+    - match: ^\s*(=)(finish)
       captures:
-        1: punctuation.definition.variable
-      scope: variable.other.raku
-
-  regex:
-    - match: '(?x)(?<= ^ | ^\s | rx | [\s\(] [^\p{Nd}\p{L}] | ~~\s|~~\s\s|match\( | match:\s)(?<! [\$\/]) ([/]) (.*) ([/])'
+        1: storage.modifier.block.finish.raku
+        2: keyword.operator.block.finish.raku
+      push:
+        - meta_content_scope: comment.block.finish.raku
+        - include: comment-block-syntax
+    - include: comment-block-delimited
+    - match: ^\s*(=)(?:(para)|(for)\s+(\w+))
       captures:
-        1: string.regexp.begin.raku
+        1: storage.modifier.block.paragraph.raku
+        2: keyword.operator.block.paragraph.raku
+        3: entity.other.attribute-name.paragraph.raku
+      push:
+        - meta_content_scope: comment.block.paragraph.raku
+        - match: (?=^\s*$|^\s*=\w+.*$)
+          pop: true
+        - include: comment-block-syntax
+    - include: comment-block-abbreviated
+    - match: '^\s*(#)([\|\=])(.*)\n'
+      scope: meta.documentation.block.declarator.raku
+      captures:
+        1: comment.punctuation.pound.raku
+        2: meta.declarator.raku
+        3: comment.inline.declarator.raku
+    - match: \s*#`\(\(\(
+      push:
+        - meta_scope: comment.multiline.hash-tick.triple_paren.raku
+        - match: \)\)\)
+          pop: true
+        - match: \(\(\(
+          push:
+            - meta_scope: comment.internal.triple_paren.raku
+            - match: \)\)\)
+              pop: true
+    - match: '\s*#`\[\[\['
+      push:
+        - meta_scope: comment.multiline.hash-tick.triple_bracket.raku
+        - match: '\]\]\]'
+          pop: true
+        - match: '\[\[\['
+          push:
+            - meta_scope: comment.internal.triple_bracket.raku
+            - match: '\]\]\]'
+              pop: true
+    - match: '\s*#`\{\{\{'
+      push:
+        - meta_scope: comment.multiline.hash-tick.triple_brace.raku
+        - match: '\}\}\}'
+          pop: true
+        - match: '\{\{\{'
+          push:
+            - meta_scope: comment.internal.triple_brace.raku
+            - match: '\}\}\}'
+              pop: true
+    - match: \s*#`<<<
+      push:
+        - meta_scope: comment.multiline.hash-tick.triple_angle.raku
+        - match: '>>>'
+          pop: true
+        - match: '<<<'
+          push:
+            - meta_scope: comment.internal.triple_angle.raku
+            - match: '>>>'
+              pop: true
+    - match: \s*#`<<
+      push:
+        - meta_scope: comment.multiline.hash-tick.double_angle.raku
+        - match: '>>'
+          pop: true
+        - match: '<<'
+          push:
+            - meta_scope: comment.internal.double_angle.raku
+            - match: '>>'
+              pop: true
+    - match: \s*#`\(\(
+      push:
+        - meta_scope: comment.multiline.hash-tick.double_paren.raku
+        - match: \)\)
+          pop: true
+        - match: \(\(
+          push:
+            - meta_scope: comment.internal.double_paren.raku
+            - match: \)\)
+              pop: true
+    - match: '\s*#`\[\['
+      push:
+        - meta_scope: comment.multiline.hash-tick.double_bracket.raku
+        - match: '\]\]'
+          pop: true
+        - match: '\[\['
+          push:
+            - meta_scope: comment.internal.double_bracket.raku
+            - match: '\]\]'
+              pop: true
+    - match: '\s*#`{{'
+      push:
+        - meta_scope: comment.multiline.hash-tick.double_brace.raku
+        - match: '}}'
+          pop: true
+        - match: '{{'
+          push:
+            - meta_scope: comment.internal.double_brace.raku
+            - match: '}}'
+              pop: true
+    - match: '\s*#`{'
+      push:
+        - meta_scope: comment.multiline.hash-tick.brace.raku
+        - match: '}'
+          pop: true
+        - match: '{'
+          push:
+            - meta_scope: comment.internal.brace.raku
+            - match: '}'
+              pop: true
+    - match: \s*#`<
+      push:
+        - meta_scope: comment.multiline.hash-tick.angle.raku
+        - match: '>'
+          pop: true
+        - match: <
+          push:
+            - meta_scope: comment.internal.angle.raku
+            - match: '>'
+              pop: true
+    - match: \s*#`\(
+      push:
+        - meta_scope: comment.multiline.hash-tick.paren.raku
+        - match: \)
+          pop: true
+        - match: \(
+          push:
+            - meta_scope: comment.internal.paren.raku
+            - match: \)
+              pop: true
+    - match: '\s*#`\['
+      push:
+        - meta_scope: comment.multiline.hash-tick.bracket.raku
+        - match: '\]'
+          pop: true
+        - match: '\['
+          push:
+            - meta_scope: comment.internal.bracket.raku
+            - match: '\]'
+              pop: true
+    - match: \s*#`“
+      push:
+        - meta_scope: comment.multiline.hash-tick.left_double_right_double.raku
+        - match: ”
+          pop: true
+        - match: “
+          push:
+            - meta_scope: comment.internal.left_double_right_double.raku
+            - match: ”
+              pop: true
+    - match: \s*#`„
+      push:
+        - meta_scope: comment.multiline.hash-tick.left_double-low-q_right_double.raku
+        - match: ”|“
+          pop: true
+        - match: „
+          push:
+            - meta_scope: comment.internal.left_double-low-q_right_double.raku
+            - match: ”|“
+              pop: true
+    - match: \s*#`‘
+      push:
+        - meta_scope: comment.multiline.hash-tick.left_single_right_single.raku
+        - match: ’
+          pop: true
+        - match: ‘
+          push:
+            - meta_scope: comment.internal.left_single_right_single.raku
+            - match: ’
+              pop: true
+    - match: \s*#`‚
+      push:
+        - meta_scope: comment.multiline.hash-tick.low-q_left_single.raku
+        - match: ‘
+          pop: true
+        - match: ‚
+          push:
+            - meta_scope: comment.internal.low-q_left_single.raku
+            - match: ‘
+              pop: true
+    - match: \s*#`「
+      push:
+        - meta_scope: comment.multiline.hash-tick.fw_cornerbracket.raku
+        - match: 」
+          pop: true
+        - match: 「
+          push:
+            - meta_scope: comment.internal.fw_cornerbracket.raku
+            - match: 」
+              pop: true
+    - match: \s*#`｢
+      push:
+        - meta_scope: comment.multiline.hash-tick.hw_cornerbracket.raku
+        - match: ｣
+          pop: true
+        - match: ｢
+          push:
+            - meta_scope: comment.internal.hw_cornerbracket.raku
+            - match: ｣
+              pop: true
+    - match: \s*#`«
+      push:
+        - meta_scope: comment.multiline.hash-tick.chevron.raku
+        - match: »
+          pop: true
+        - match: «
+          push:
+            - meta_scope: comment.internal.chevron.raku
+            - match: »
+              pop: true
+    - match: \s*#`⟅
+      push:
+        - meta_scope: comment.multiline.hash-tick.s-shaped-bag-delimiter.raku
+        - match: ⟆
+          pop: true
+        - match: ⟅
+          push:
+            - meta_scope: comment.internal.s-shaped-bag-delimiter.raku
+            - match: ⟆
+              pop: true
+    - match: “
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.left_double_right_double.raku
+        - match: ”
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[“”abtnfre\\\{\}]'
+          scope: constant.character.escape.raku
+        - include: interpolation
+        - include: scope:source.quoting.raku#q_left_double_right_double_string_content
+    - match: „
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.left_double-low-q_right_double.raku
+        - match: ”|“
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[„”|“abtnfre\\\{\}]'
+          scope: constant.character.escape.raku
+        - include: interpolation
+        - include: scope:source.quoting.raku#q_left_double-low-q_right_double_string_content
+    - match: (?<=\W|^)‘
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.single.left_single_right_single.raku
+        - match: ’
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[‘’\\]'
+          scope: constant.character.escape.raku
+        - include: scope:source.quoting.raku#q_left_single_right_single_string_content
+    - match: (?<=\W|^)‚
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.single.low-q_left_single.raku
+        - match: ‘
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[‚‘\\]'
+          scope: constant.character.escape.raku
+        - include: scope:source.quoting.raku#q_low-q_left_single_string_content
+    - match: (?<=\W|^)'
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.single.single.raku
+        - match: "'"
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[''\\]'
+          scope: constant.character.escape.raku
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '"'
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.double.raku
+        - match: '"'
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\["abtnfre\\\{\}]'
+          scope: constant.character.escape.raku
+        - include: interpolation
+        - include: scope:source.quoting.raku#q_double_string_content
+    - match: ”
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.right_double_right_double.raku
+        - match: ”
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - match: '\\[”abtnfre\\\{\}]'
+          scope: constant.character.escape.raku
+        - include: interpolation
+        - include: scope:source.quoting.raku#q_right_double_right_double_string_content
+    - match: '(^[ \t]+)?(?=#)'
+      captures:
+        1: punctuation.whitespace.comment.leading.raku
+      push:
+        - match: (?!\K)
+          pop: true
+        - match: '#'
+          captures:
+            0: punctuation.definition.comment.raku
+          push:
+            - meta_scope: comment.line.number-sign.raku
+            - match: \n
+              pop: true
+    - match: '(?x) \x{2208}|\(elem\)|\x{2209}|\!\(elem\)| \x{220B}|\(cont\)|\x{220C}|\!\(cont\)| \x{2286}|\(<=\)  |\x{2288}|\!\(<=\)  | \x{2282}|\(<\)   |\x{2284}|\!\(<\)   | \x{2287}|\(>=\)  |\x{2289}|\!\(>=\)  | \x{2283}|\(>\)   |\x{2285}|\!\(>\)   | \x{227C}|\(<\+\)|\x{227D}|\(>\+\)   | \x{222A}|\(\|\) |\x{2229}|\(&\)      | \x{2216}|\(\-\) |\x{2296}|\(\^\)    | \x{228D}|\(\.\) |\x{228E}|\(\+\)'
+      scope: keyword.operator.setbagmix.raku
+    - match: '(?x) ( class|enum|grammar|knowhow|module| package|role|slang|subset|monitor|actor ) (\s+) ( ( (?:::|'')? (?: ([a-zA-Z_À-ÿ\$]) ([a-zA-Z0-9_À-ÿ\$]|[\-''][a-zA-Z0-9_À-ÿ\$])* ) )+ )'
+      scope: meta.class.raku
+      captures:
+        1: storage.type.class.raku
+        3: entity.name.type.class.raku
+    - include: p5_regex
+    - match: |-
+        (?x)
+        (?<=
+          ^
+         | ^\s
+         | [\s\(] [^\p{Nd}\p{L}]
+         | ~~\s|~~\s\s|match\(
+         | match:\s
+        )
+        ([/]) # Solidus
+        (.*?) # Regex contents
+        (?: (?<!\\)|(?<=\\\\) ) (/) # Ending
+      captures:
+        1: punctuation.definition.regexp.raku
         2: string.regexp.raku
-        3: string.regexp.end.raku
-
-
-  operators:
-    - include: simple_operators
-    - include: word_operators
-    - include: access_operator
-    - include: multi_symbol_operators
-
-  simple_operators:
-    - match: '(?x) (?<!\(|\*)\%| [\^\+><\*\!=\?~\/\|]| (?<!\$)\.| (?<!:):(?!:)| (?<=\s)\-(?=[\s\(\{\[])| (?<!\w)[o\x{2218}](?!\w)'
-      scope: keyword.operator.generic.raku
-
-  access_operator:
-    - match: '(?x)\b(?<![\-])( :: )?(exists)(?!\-)\b(?!\s*=>)'
-      scope: keyword.operator.colon.raku
-
-  word_operators:
-    - match: '(?x)\b(?<!\$|@|&|%)( div|mod|gcd|lcm|x|xx|temp|let|but|cmp|leg| eq|ne|gt|ge|lt|le|before|after|eqv|min|max|ff|fff|not|so|Z| and|andthen|or|orelse )\b(?!\-)| \b(X)(?!:)\b'
-      scope: keyword.operator.word.raku
-
-  multi_symbol_operators:
-    - match: '(?x) <== | ==> | <=> | => | --> | -> | \+\| | \+\+ | -- | \*\* | \?\?\? | \?\? | \!\!\! | \!\! | && | \+\^ | \?\^ | %% | \+& | \+< | \+> | \+\^ | \.\.(?!\.) | \.\.\^ | \^\.\. | \^\.\.\^ | \?\| | !=(?!\=) | !==(?!\=) | <=(?!>) | >= | === | == | =:= | ~~ | \x{2245} | \|\| | \^\^ | \/\/ | := | ::= | \.\.\.'
-      scope: keyword.operator.multi-symbol.raku
-
-
-  numbers:
-    - match: '\b(\-)?[0-9]*\.?[0-9]+\b'
-      scope: constant.numeric.raku
-    - match: '\b0x[0-9a-fA-F_]+\b'
-      scope: constant.numeric.raku
-    - match: '\b0b[0-1_]+\b'
-      scope: constant.numeric.raku
-    - match: '\b0o[0-7_]+\b'
-      scope: constant.numeric.raku
-
-  built_in_consts:
-    - match: '\b(True|False|Nil)\b'
-      scope: constant.language.raku
-
-  trait:
-    - match: '(?x)\b(?<![\-:])( prec|irs|ofs|ors|export|raw|deep |binary|unary|reparsed|rw|parsed |cached|readonly|defequiv|will |ref|copy|inline|tighter|looser |equiv|assoc|required|pure )(?!\-)\b  (?!\s*=>)'
-      scope: entity.name.trait.raku
-
-  storage_types:
-    - match: '\b(Mu|Any|Cool|Str|Int|Rat|Bool|Sub|u?int8|u?int16|u?int32|u?int64|byte|num32|num64|token|regex|rule)\b'
-      scope: storage.type.raku
-    - match: '\b(sub|multi|submethod|method)\b ([A-Za-z0-9_\-!]+)'
-      scope: storage.type.raku
+        3: punctuation.definition.regexp.raku
+    - match: |-
+        (?x)
+        (?<= [=,(\[]|when|=>|~~) \s*
+        (?:
+          (m|rx|s)?
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        ) # With the m or rx
+        \s*
+        ([/]) # Solidus
       captures:
-        1: meta.function.raku
-        2: entity.name.function.raku
-    - match: '\b(class)\b ([A-Za-z0-9-_:]+)'
-      scope: storage.type.raku
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\)|(?<!'')|(?<=\\ '') ) (/)'
+          captures:
+            1: punctuation.definition.regexp.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|[=,(\[~]|when|=> ) \s*
+        (?:
+          (m|rx|s)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        ) # With the m or rx
+        \s*
+        ([{]) # Left curly brace
       captures:
-        1: meta.class.raku
-        2: entity.name.class.raku
-    - match: '\b(grammar)\b ([A-Za-z0-9_-]+)'
-      scope: storage.type.raku
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: fstring.regexp.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (\})'
+          captures:
+            1: punctuation.definition.regexp.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: '(?<![\w\/])(m|rx)((?:\s*:\w+)*)\s*(\{)'
       captures:
-        1: meta.grammar.raku
-        2: entity.name.grammar.raku
-
-  storage_modifier:
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.raku
+        - match: '(?<!\\)(\})'
+          captures:
+            1: punctuation.definition.regexp.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: '(?<![\w\/])(m|rx)((?:\s*:\w+)*)\s*(\[)'
+      captures:
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.raku
+        - match: '(?<!\\)(\])'
+          captures:
+            1: punctuation.definition.regexp.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: (?<=\W|^)｢
+      captures:
+        0: punctuation.definition.string.begin.raku
+      push:
+        - meta_scope: string.quoted.single.raku
+        - match: ｣
+          captures:
+            0: punctuation.definition.string.end.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_hw_cornerbracket_string_content
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (/)
+      captures:
+        1: string.regexp.construct.slash.raku
+        2: entity.name.section.adverb.regexp.slash.raku
+        3: punctuation.definition.regexp.slash.raku
+      push:
+        - meta_content_scope: string.regexp.slash.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (/)'
+          captures:
+            1: punctuation.definition.regexp.slash.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        ({)
+      captures:
+        1: string.regexp.construct.brace.raku
+        2: entity.name.section.adverb.regexp.brace.raku
+        3: punctuation.definition.regexp.brace.raku
+      push:
+        - meta_content_scope: string.regexp.brace.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (})'
+          captures:
+            1: punctuation.definition.regexp.brace.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (<)
+      captures:
+        1: string.regexp.construct.angle.raku
+        2: entity.name.section.adverb.regexp.angle.raku
+        3: punctuation.definition.regexp.angle.raku
+      push:
+        - meta_content_scope: string.regexp.angle.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (>)'
+          captures:
+            1: punctuation.definition.regexp.angle.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (\()
+      captures:
+        1: string.regexp.construct.paren.raku
+        2: entity.name.section.adverb.regexp.paren.raku
+        3: punctuation.definition.regexp.paren.raku
+      push:
+        - meta_content_scope: string.regexp.paren.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (\))'
+          captures:
+            1: punctuation.definition.regexp.paren.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (\[)
+      captures:
+        1: string.regexp.construct.bracket.raku
+        2: entity.name.section.adverb.regexp.bracket.raku
+        3: punctuation.definition.regexp.bracket.raku
+      push:
+        - meta_content_scope: string.regexp.bracket.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (\])'
+          captures:
+            1: punctuation.definition.regexp.bracket.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (“)
+      captures:
+        1: string.regexp.construct.left_double_right_double.raku
+        2: entity.name.section.adverb.regexp.left_double_right_double.raku
+        3: punctuation.definition.regexp.left_double_right_double.raku
+      push:
+        - meta_content_scope: string.regexp.left_double_right_double.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (”)'
+          captures:
+            1: punctuation.definition.regexp.left_double_right_double.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        („)
+      captures:
+        1: string.regexp.construct.left_double-low-q_right_double.raku
+        2: entity.name.section.adverb.regexp.left_double-low-q_right_double.raku
+        3: punctuation.definition.regexp.left_double-low-q_right_double.raku
+      push:
+        - meta_content_scope: string.regexp.left_double-low-q_right_double.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (”|“)'
+          captures:
+            1: punctuation.definition.regexp.left_double-low-q_right_double.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (‘)
+      captures:
+        1: string.regexp.construct.left_single_right_single.raku
+        2: entity.name.section.adverb.regexp.left_single_right_single.raku
+        3: punctuation.definition.regexp.left_single_right_single.raku
+      push:
+        - meta_content_scope: string.regexp.left_single_right_single.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (’)'
+          captures:
+            1: punctuation.definition.regexp.left_single_right_single.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (‚)
+      captures:
+        1: string.regexp.construct.low-q_left_single.raku
+        2: entity.name.section.adverb.regexp.low-q_left_single.raku
+        3: punctuation.definition.regexp.low-q_left_single.raku
+      push:
+        - meta_content_scope: string.regexp.low-q_left_single.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (‘)'
+          captures:
+            1: punctuation.definition.regexp.low-q_left_single.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (「)
+      captures:
+        1: string.regexp.construct.fw_cornerbracket.raku
+        2: entity.name.section.adverb.regexp.fw_cornerbracket.raku
+        3: punctuation.definition.regexp.fw_cornerbracket.raku
+      push:
+        - meta_content_scope: string.regexp.fw_cornerbracket.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (」)'
+          captures:
+            1: punctuation.definition.regexp.fw_cornerbracket.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (｢)
+      captures:
+        1: string.regexp.construct.hw_cornerbracket.raku
+        2: entity.name.section.adverb.regexp.hw_cornerbracket.raku
+        3: punctuation.definition.regexp.hw_cornerbracket.raku
+      push:
+        - meta_content_scope: string.regexp.hw_cornerbracket.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (｣)'
+          captures:
+            1: punctuation.definition.regexp.hw_cornerbracket.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        («)
+      captures:
+        1: string.regexp.construct.chevron.raku
+        2: entity.name.section.adverb.regexp.chevron.raku
+        3: punctuation.definition.regexp.chevron.raku
+      push:
+        - meta_content_scope: string.regexp.chevron.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (»)'
+          captures:
+            1: punctuation.definition.regexp.chevron.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        (⟅)
+      captures:
+        1: string.regexp.construct.s-shaped-bag-delimiter.raku
+        2: entity.name.section.adverb.regexp.s-shaped-bag-delimiter.raku
+        3: punctuation.definition.regexp.s-shaped-bag-delimiter.raku
+      push:
+        - meta_content_scope: string.regexp.s-shaped-bag-delimiter.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (⟆)'
+          captures:
+            1: punctuation.definition.regexp.s-shaped-bag-delimiter.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - match: |-
+        (?x)
+        (?<= ^|\s )
+        (?:
+          (m|rx|s|S)
+          (
+            (?:
+              (?<!:P5) # < This can maybe be removed because we
+              \s*:\w+
+              (?!\s*:P5) # < include p5_regex above it
+            )*
+          )
+        )
+        \s*
+        ([^#\p{Ps}\p{Pe}\p{Pi}\p{Pf}\w'\-<>\-\]\)\}\{])
+      captures:
+        1: string.regexp.construct.any.raku
+        2: entity.name.section.adverb.regexp.any.raku
+        3: punctuation.definition.regexp.any.raku
+      push:
+        - meta_content_scope: string.regexp.any.raku
+        - match: '(?x) (?: (?<!\\)|(?<=\\\\) ) (\3)'
+          captures:
+            1: punctuation.definition.regexp.any.raku
+          pop: true
+        - include: interpolation
+        - include: scope:source.regexp.raku
+    - include: shellquotes
+    - match: '(?x) (?: ( qq|qqx|qqw ) \s* ( (?:\s*:\w+)*\s*: (?: to|heredoc ) )\s* | (qqto) \s* ( (?:\s*:\w+)* )\s* ) / (\S+) /'
+      captures:
+        1: string.quoted.construct.raku
+        2: support.function.adverb.raku
+        3: string.quoted.construct.raku
+        4: support.function.adverb.raku
+        5: entity.other.attribute-name.heredoc.delimiter.raku
+      push:
+        - meta_scope: string.quoted.heredoc.raku
+        - match: \s*\5
+          captures:
+            0: entity.other.attribute-name.heredoc.delimiter.raku
+          pop: true
+        - match: (?<=/)
+          push:
+            - meta_scope: meta.heredoc.continuation.raku
+            - match: \n
+              pop: true
+            - include: main
+        - match: ^
+          push:
+            - match: $
+              pop: true
+            - include: interpolation
+        - match: '(?x) ^ (?: . | \n )* $'
+          scope: string.quoted.qq.heredoc.raku
+    - match: '(?x) (?: ( [qQ](?!/)|qw|qww|qx|qqx ) \s* ( (?:\s*:\w+)*\s*: (?: to|heredoc ) )\s* | (qto|Qto) \s* ( (?:\s*:\w+)* )\s* ) / (\S+) /'
+      captures:
+        1: string.quoted.construct.raku
+        2: support.function.adverb.raku
+        3: string.quoted.construct.raku
+        4: support.function.adverb.raku
+        5: entity.other.attribute-name.heredoc.delimiter.raku
+      push:
+        - meta_scope: meta.heredoc.raku
+        - match: \s*\5
+          captures:
+            0: entity.other.attribute-name.heredoc.delimiter.raku
+          pop: true
+        - match: (?<=/)
+          push:
+            - meta_scope: meta.heredoc.continuation.raku
+            - match: \n
+              pop: true
+            - include: main
+        - match: '(?x) ^ (?: . | \n )* $'
+          scope: string.quoted.q.heredoc.raku
+    - include: scope:source.quoting.raku
+    - include: variables
+    - match: '(?x) (?<![%$&@]|\w) (?:  (multi|proto) \s+ )? (macro|sub|submethod|method|multi|only|category) \s+ (!)? (  [^\s(){}]+ )'
+      captures:
+        1: storage.type.declarator.multi.raku
+        2: storage.type.declarator.type.raku
+        3: support.class.method.private.raku
+      push:
+        - match: '(?=[\(\{\s])'
+          pop: true
+    - match: '(?<![\.:])(regex|rule|token)(?!\s*=>|\S)'
+      captures:
+        1: storage.type.declare.regexp.named.raku
+      push:
+        - meta_scope: meta.regexp.named.raku
+        - match: '(?<!\\)\}'
+          captures:
+            0: punctuation.definition.regexp.named.raku
+          pop: true
+        - match: TOP
+          scope: entity.name.function.regexp.named.TOP.raku
+        - match: '[\p{Digit}\p{Alpha}''\-_]+'
+          scope: entity.name.function.regexp.named.raku
+        - match: (:)(\w+)
+          scope: meta.regexp.named.adverb.raku
+          captures:
+            1: punctuation.definition.regexp.adverb.raku
+            2: support.type.class.adverb.raku
+        - match: <
+          push:
+            - meta_content_scope: string.array.words.raku
+            - match: '(?x) \\\\|(?<!\\) ( > ) (?=[\s\{])'
+              pop: true
+        - match: «
+          push:
+            - meta_content_scope: string.array.words.chevron.raku
+            - match: '(?x)  \\\\|(?<!\\) ( » ) (?=[\s\{])'
+              pop: true
+        - match: \(
+          captures:
+            0: punctuation.definition.regexp.named.signature.perlfe
+          push:
+            - meta_scope: meta.regexp.named.signature.raku
+            - match: (?<!\\)\)
+              captures:
+                0: punctuation.definition.regexp.named.signature.perlfe
+              pop: true
+            - include: main
+        - match: '\{'
+          captures:
+            0: punctuation.definition.regex.named.raku
+          push:
+            - meta_scope: meta.regexp.named.block.raku
+            - match: '(?=\})'
+              captures:
+                0: punctuation.definition.regex.named.raku
+              pop: true
+            - include: interpolation
+            - include: scope:source.regexp.raku
+    - match: '\b(?<![\-:])(self)(?!\-)\b'
+      scope: variable.language.raku
+    - match: '\b(?<![\-:])(use|require|no|need)(?!\-)\b'
+      scope: keyword.other.include.raku
+    - match: '(?x)\b(?<![\-:])( if|else|elsif|unless|with|orwith|without )(?!\-)\b'
+      scope: keyword.control.conditional.raku
+    - match: '\b(?<![\-:])(let|my|our|state|temp|has|constant)(?!\-)\b'
+      scope: storage.modifier.declarator.raku
+    - match: (?x) (?<= = | for ) \s* ( < )
+      captures:
+        1: span.keyword.operator.array.words.raku
+      push:
+        - meta_content_scope: string.array.words.raku
+        - match: (?x)  \\\\|(?<!\\) ( > )
+          captures:
+            1: span.keyword.operator.array.words.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_bracket_string_content
+    - match: '(?x) (?: [+:\-.*/] | \|\| )? (?<! = ) = (?! [>=~] )'
+      scope: storage.modifier.assignment.raku
+    - match: '(?x) (?<! \+< | \+\s|\+ ) \s* (<) (?<! > ) (?= [^<]* (?: [^<] ) > )'
+      captures:
+        1: span.keyword.operator.array.words.raku
+      push:
+        - meta_content_scope: string.array.words.raku
+        - match: (?x) \\\\|(?<!\\) ( > )
+          captures:
+            1: span.keyword.operator.array.words.raku
+          pop: true
+    - match: \b(for|loop|repeat|while|until|gather|given)(?!\-)\b
+      scope: keyword.control.repeat.raku
+    - match: |-
+        (?x)
+        \b (?<! [\-:.] )
+        (
+           take|do|when|next|last|redo|return|return-rw
+          |contend|maybe|defer|default|exit|quietly
+          |continue|break|goto|leave|supply
+          |async|lift|await|start|react|whenever|parse
+        )
+        (?! - ) \b
+      scope: keyword.control.flowcontrol.raku
+    - match: |-
+        (?x)
+        \b (?<! [\-:] )
+        (
+          make|made
+        )
+        (?! - ) \b
+      scope: keyword.control.flowcontrol.regex.raku
     - match: '(?x)\b(?<![\-:]) (is|does|as|but|trusts|of|returns|handles|where|augment|supersede) (?!\-)\b (?!\s*=>)'
       scope: storage.modifier.type.constraints.raku
-
-  char_escapes:
-    - match: '\.'
-      scope: constant.character.escape.raku
-
-  heredoc_string:
-    - match: 'q:to\/(.*)\/;\s?+'
-      push: inside_heredoc_string
-
-  inside_heredoc_string:
-    - meta_include_prototype: false
-    - meta_content_scope: string.multiline.raku
-    - include: char_escapes
-    - match: ^\1
-      pop: true
-
-  double_quote_strings:
-    # interpolated strings begin and end with double quotes, and use backslashes as an escape
-    # character.
-    - match: '"'
-      scope: punctuation.definition.string.begin.raku
-      push: inside_double_quote_string
-
-  inside_double_quote_string:
-    - meta_include_prototype: false
-    - meta_scope: string.quoted.double.raku
-    - include: char_escapes
-    - match: '(?<![\\])"'
-      scope: punctuation.definition.string.end.raku
-      pop: true
-
-  single_qoute_strings:
-    # literal strings begin and end with single quotes, no escapes
-    - match: ''''
-      scope: punctuation.definition.string.begin.raku
-      push:
-        - meta_include_prototype: false
-        - meta_scope: string.quoted.single.raku
-        - match: ''''
-          scope: punctuation.definition.string.end.raku
-          pop: true
-
-  angle_quote_strings:
-    - match: '<([^\n>]+)>'
+    - match: '(?x)\b(?<![\-:])( BEGIN|CHECK|INIT |START|FIRST|ENTER |LEAVE|KEEP|UNDO |NEXT|LAST|PRE |POST|END|CATCH |CONTROL|TEMP|QUIT )(?!\-)\b'
+      scope: keyword.control.closure.trait.raku
+    - match: '\b(?<![\-:])(die|fail|try|warn)(?!\-)\b(?!\s*=>)'
+      scope: keyword.control.control-handlers.raku
+    - match: '(?x)\b(?<![\-:])( prec|irs|ofs|ors|export|raw|deep |binary|unary|reparsed|rw|parsed |cached|readonly|defequiv|will |ref|copy|inline|tighter|looser |equiv|assoc|required|pure )(?!\-)\b  (?!\s*=>)'
+      scope: entity.name.type.trait.raku
+    - match: \b(NaN|Inf)(?!\-)\b
+      scope: constant.numeric.raku
+    - match: \b(True|False)\b
+      scope: constant.language.boolean.raku
+    - match: '(?x)\b(?<![\-:])( fatal|internals| MONKEY\-(?:TYPING|SEE\-NO\-EVAL|BRAINS|GUTS|BUSINESS|TRAP|SHINE|WRENCH|BARS)| nqp|QAST|strict|trace|worries|invocant|parameters|experimental| cur|soft|variables|attributes|v6(?:\.\w)*|lib|Test|NativeCall )(?!\-) \b (?!\s*=>)'
+      scope: constant.language.pragma.raku
+    - match: '(?x)(?<![:\-\w]) (Backtrace|Exception|Failure|X) (?: \:\:[a-zA-Z]+ )* \b'
       captures:
-        1: string.angled.raku
-      pop: true
-
-  sections:
-    # literal strings begin and end with single quotes, no escapes
-    - match: '{|\[|\(|\)|\]|}|;'
-      scope: punctuation.section.raku
-
-  line_comments:
-    # line_comments begin with a '#' and finish at the end of the line.
-    - match: '#'
-      scope: punctuation.definition.comment.raku
+        0: support.type.exception.raku
+    - match: |-
+        (?x)\b(?<!:)(
+          AST|Any|Array|Associative|Attribute|Bag|BagHash|Baggy|
+          Blob|Block|Bool|Callable|Capture|Channel|Code|Complex|Cool|
+          CurrentThreadScheduler|Cursor|Date|DateTime|Dateish|Duration|
+          Enum|FatRat|Grammar|Hash|IO|Instant|Iterable|
+          Iterator|Junction|Label|List|Lock|Macro|Map|Match|Metamodel|
+          Method|Mix|MixHash|Mixy|Mu|Nil|Numeric|ObjAt|Pair|
+          Parameter|Pod|Positional|PositionalBindFailover|Proc|Promise|
+          Proxy|QuantHash|Range|Rat|Rational|Real|Regex|Routine|Scheduler|
+          Seq|Set|SetHash|Setty|Signature|Slip|Stash|Str|str|Stringy|Sub|
+          Submethod|Supply|Tap|Temporal|Thread|ThreadPoolScheduler|
+          Variable|Version|Whatever|WhateverCode|bool|size_t|
+          Int|int|int1|int2|int4|int8|int16|int32|int64|
+          Rat|rat|rat1|rat2|rat4|rat8|rat16|rat32|rat64|
+          Buf|buf|buf1|buf2|buf4|buf8|buf16|buf32|buf64|
+          UInt|uint|uint1|uint2|uint4|uint8|uint16|uint32|uint64|
+          utf8|utf16|utf32|Num|num|num32|num64|IntStr|NumStr|
+          RatStr|ComplexStr|CArray|Pointer|long|longlong|
+          # These are for types which have sub types
+          Order|More|Less|Same
+        )\b (?!\s*=>)
+      captures:
+        1: support.type.raku
+        2: support.class.type.adverb.raku
+    - match: '(?x) ( \[ / \] )'
+      scope: keyword.operator.reduction.raku
+    - match: '(?<=\w)(\:)([DU_])\b'
+      scope: meta.adverb.definedness.raku
+      captures:
+        1: keyword.operator.adverb.raku
+        2: keyword.other.special-method.definedness.raku
+    - match: (?x)\b( div|mod|gcd|lcm|x|xx|temp|let|but|cmp|leg| eq|ne|gt|ge|lt|le|before|after|eqv|min|max|ff|fff|not|so|Z| and|andthen|or|orelse )\b(?!\-)| \b(X)(?!:)\b
+      scope: keyword.operator.word.raku
+    - match: (=~=|≅)
+      scope: meta.operator.non.ligature.raku
+      captures:
+        1: keyword.operator.approx-equal.raku
+    - match: '(?x) <== | ==> | <=> | => | --> | -> | \+\| | \+\+ | -- | \*\* | \?\?\? | \?\? | \!\!\! | \!\! | && | \+\^ | \?\^ | %% | \+& | \+< | \+> | \+\^ | \.\.(?!\.) | \.\.\^ | \^\.\. | \^\.\.\^ | \?\| | !=(?!\=) | !==(?!\=) | <=(?!>) | >= | === | == | =:= | ~~ | \x{2245} | \|\| | \^\^ | \/\/ | := | ::= | \.\.\.'
+      scope: keyword.operator.multi-symbol.raku
+    - include: special_variables
+    - match: '(?x)(?<=\[) \s* (\*) \s* ([\-\*%\^\+\/]|div|mod|gcd|lcm) \s* (\d+) \s* (?=\])'
+      scope: meta.subscript.whatever.raku
+      captures:
+        1: constant.language.whatever.raku
+        2: keyword.operator.minus.back-from.raku
+        3: constant.numeric.back-from.raku
+    - match: '\*\s*(?=\])'
+      scope: constant.language.whatever.hack.raku
+    - match: '(?x)\b(?<![\-\\])( :: )?(exists)(?!\-)\b(?!\s*=>)'
+      scope: support.function.raku
+      captures:
+        1: keyword.operator.colon.raku
+    - match: '(?x)\b(?<![\-:\\])( :: )?( eager|hyper|substr|index|rindex|grep|map|sort|join|lines|hints |chmod|split|reduce|min|max|reverse|truncate|zip|cat|roundrobin |classify|first|sum|keys|values|pairs|defined|delete|exists |elems|end|kv|any|all|one|wrap|shape|key|value|name|pop|push |shift|splice|unshift|floor|ceiling|abs|exp|log|log10|rand|sign |sqrt|sin|cos|tan|round|strand|roots|cis|unpolar|polar|atan2 |pick|chop|chomp|lc|lcfirst|uc|ucfirst|capitalize|mkdir |normalize|pack|unpack|quotemeta|comb|samecase|sameaccent|chars |nfd|nfc|nfkd|nfkc|printf|sprintf|caller|evalfile|run|runinstead |nothing|want|bless|chr|ord|ords|gmtime|time|eof|localtime|gethost |getpw|chroot|getlogin|getpeername|kill|fork|wait|perl|graphs |codes|bytes|clone|print|open|read|write|readline|say|seek|close |opendir|readdir|slurp|spurt|shell|run|pos|fmt|vec|link|unlink |symlink|unique|pair|asin|atan|sec|cosec|cotan|asec|acosec|acotan |sinh|cosh|tanh|asinh|done|acos|acosh|atanh|sech|cosech|cotanh |sech|acosech|acotanh|asech|ok|nok|plan-ok|dies-ok|lives-ok|skip |todo|pass|flunk|force-todo|use-ok|isa-ok|diag|is-deeply|isnt |like|skip-rest|unlike|cmp-ok|eval-dies-ok|nok-error|cmp-ok |eval-lives-ok|approx|is-approx|throws-ok|version-lt|plan|EVAL |succ|pred|times|nonce|once|signature|new|connect|operator|undef |undefine|sleep|from|to|infix|postfix|prefix|circumfix|can-ok |postcircumfix|minmax|lazy|count|unwrap|getc|pi|tau|context|void |quasi|body|each|contains|rewinddir|subst|can|isa|flush|arity |assuming|rewind|callwith|callsame|nextwith|nextsame|attr|does-ok |eval-elsewhere|none|not|srand|so|trim|trim-start|trim-end|lastcall |WHAT|WHY|WHERE|HOW|WHICH|VAR|WHO|WHENCE|ACCEPTS|REJECTS|not |iterator|by|re|im|invert|flip|gist|flat|tree|is-prime |throws-like|trans|race|hyper|tap|emit|done-testing|quit|dd|note |prepend|categorize|antipairs|categorize-list|parse-base|base |starts-with|ends-with|put|append|tail|\x{03C0}|\x{03C4}|\x{212F} |get|words|new-from-pairs|uniname|uninames|uniprop|uniprops |slurp-rest|throw|break|keep|match|trim-leading|trim-trailing |is-lazy|pull-one|push-exactly|push-at-least|push-all|push-until-lazy |sink-all|skip-at-least|skip-at-least-pull-one )(?!\-)\b(?!\s*=>)'
+      scope: support.function.raku
+      captures:
+        1: keyword.operator.colon.raku
+    - match: '(?x)\b(?<![\-:]|\\)(?<=\.) (e|d|f|s|l|r|w|rw|x|rwx|z|abspath|basename|extension|dirname |watch|is-absolute|parts|volume|path|is-relative|parent|child |resolve|dir) (?!\-)\b(?!\s*=>)'
+      scope: support.function.raku
+    - include: numbers
+    - match: '(?x) (?<!\(|\*)\%| [\^\+><\*\!\?~\/\|]| (?<!\$)\.| (?<!:):(?!:)| (?<=\s)\-(?=[\s\(\{\[])| (?<!\w)[o\x{2218}](?!\w)'
+      scope: keyword.operator.generic.raku
+    - match: '(?x) (?<=^|\W|\s) ([\w''\-]+) \s* (?= =>)'
+      scope: string.pair.key.raku
+    - match: '(?x) \b (?<!\d) ([a-zA-Z_\x{c0}-\x{ff}\$]) ( [a-zA-Z0-9_\x{c0}-\x{ff}\$]| [\-''][a-zA-Z_\x{c0}-\x{ff}\$][a-zA-Z0-9_\x{c0}-\x{ff}\$] )*'
+      scope: routine.name.raku
+    - match: (?<=\:)(\d+)(<)
+      captures:
+        1: support.type.radix.raku
+        2: punctuation.definition.radix.raku
       push:
-        # This is an anonymous context push for brevity.
-        - meta_scope: comment.line.number-sign.raku
-        - match: $\n?
+        - meta_content_scope: constant.numeric.raku
+        - match: '>'
+          captures:
+            0: punctuation.definition.radix.raku
           pop: true
-
-  doc_comments:
-    # doc_comments begin with a '=begin <tagname>\n' and end with a
-    # '=end <tagname>\n' string
-    - match: '^=begin \S+\n'
-      scope: punctuation.definition.comment.raku
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - meta_scope: comment.block.documentation.raku
-        - match: '^=end \S+\n'
-          pop: true
-
-  in_line_comments:
-    - match: '#`\('
-      scope: punctuation.definition.comment.raku
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - meta_scope: comment.block.raku
-        - include: matching_parentheses
-        - match: '\)'
-          pop: true
-    - match: '#`\['
-      scope: punctuation.definition.comment.raku
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - meta_scope: comment.block.raku
-        - include: matching_square_brackets
-        - match: '\]'
-          pop: true
-    - match: '#`\{'
-      scope: punctuation.definition.comment.raku
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - meta_scope: comment.block.raku
-        - include: matching_curly_brackets
-        - match: '\}'
-          pop: true
-    - match: '#`\<'
-      scope: punctuation.definition.comment.raku
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - meta_scope: comment.block.raku
-        - include: matching_angle_brackets
-        - match: '\>'
-          pop: true
-
-  # TODO: interpolation
-  # interpolation:
-
-  # These contexts are pretty much exclusively for nested brackets in comments
-  matching_parentheses:
-    - match: '\('
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - include: matching_parentheses
-        - match: '\)'
-          pop: true
-
-  matching_square_brackets:
-    - match: '\['
-      push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - include: matching_square_brackets
-        - match: '\]'
-          pop: true
-
-  matching_curly_brackets:
     - match: '\{'
+      captures:
+        0: punctuation.definition.block.raku
       push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - include: matching_curly_brackets
+        - meta_scope: meta.block.raku
         - match: '\}'
+          captures:
+            0: punctuation.definition.block.raku
           pop: true
-
-  matching_angle_brackets:
-    - match: '\<'
+        - include: main
+  comment-block-abbreviated:
+    - match: ^\s*(=)(head\w*)\s+(.+?)\s*$
+      captures:
+        1: storage.modifier.block.abbreviated.raku
+        2: entity.other.attribute-name.block.abbreviated.raku
+        3: entity.name.section.abbreviated.raku
       push:
-        # This is an anonymous context push for brevity.
-        - meta_include_prototype: false
-        - include: matching_angle_brackets
-        - match: '\>'
+        - meta_content_scope: entity.name.section.head.abbreviated.raku
+        - match: (?=^\s*$|^\s*=\w+.*$)
+          captures:
+            1: storage.modifier.block.abbreviated.raku
+            2: entity.other.attribute-name.block.abbreviated.raku
+            3: entity.name.section.abbreviated.raku
           pop: true
+        - include: comment-block-syntax
+    - match: ^\s*(=)(\w+)\s+(.+?)\s*$
+      captures:
+        1: storage.modifier.block.abbreviated.raku
+        2: entity.other.attribute-name.block.abbreviated.raku
+        3: entity.name.section.abbreviated.raku
+      push:
+        - meta_content_scope: comment.block.abbreviated.raku
+        - match: (?=^\s*$|^\s*=\w+.*$)
+          captures:
+            1: storage.modifier.block.abbreviated.raku
+            2: entity.other.attribute-name.block.abbreviated.raku
+            3: entity.name.section.abbreviated.raku
+          pop: true
+        - include: comment-block-syntax
+  comment-block-delimited:
+    - match: ^\s*(=)(begin)\s+(\w+)
+      captures:
+        1: storage.modifier.block.delimited.raku
+        2: keyword.operator.block.delimited.raku
+        3: entity.other.attribute-name.block.delimited.raku
+      push:
+        - meta_content_scope: comment.block.delimited.raku
+        - match: ^\s*(=)(end)\s+(\w+)
+          captures:
+            1: storage.modifier.block.delimited.raku
+            2: keyword.operator.block.delimited.raku
+            3: entity.other.attribute-name.block.delimited.raku
+          pop: true
+        - include: comment-block-syntax
+  comment-block-syntax:
+    - include: comment-block-delimited
+    - include: comment-block-abbreviated
+    - match: (?x) (U) (<<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.underline.raku
+        - match: (?x) (>>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_triple_angle_string_content
+    - match: (?x) (I) (<<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.italic.raku
+        - match: (?x) (>>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_triple_angle_string_content
+    - match: (?x) (B) (<<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.bold.raku
+        - match: (?x) (>>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_triple_angle_string_content
+    - match: '(?x) ([A-Z]) (<<<)'
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.raw.code.raku
+        - match: (?x) (>>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_triple_angle_string_content
+    - match: (?x) (U) (<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.underline.raku
+        - match: (?x) (>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_double_angle_string_content
+    - match: (?x) (I) (<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.italic.raku
+        - match: (?x) (>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_double_angle_string_content
+    - match: (?x) (B) (<<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.bold.raku
+        - match: (?x) (>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_double_angle_string_content
+    - match: '(?x) ([A-Z]) (<<)'
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.raw.code.raku
+        - match: (?x) (>>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_double_angle_string_content
+    - match: (?x) (U) (<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.underline.raku
+        - match: (?x) (>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_angle_string_content
+    - match: (?x) (I) (<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.italic.raku
+        - match: (?x) (>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_angle_string_content
+    - match: (?x) (B) (<)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.bold.raku
+        - match: (?x) (>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_angle_string_content
+    - match: '(?x) ([A-Z]) (<)'
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.raw.code.raku
+        - match: (?x) (>)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_angle_string_content
+    - match: (?x) (U) («)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.underline.raku
+        - match: (?x) (»)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_chevron_string_content
+    - match: (?x) (I) («)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.italic.raku
+        - match: (?x) (»)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_chevron_string_content
+    - match: (?x) (B) («)
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.bold.raku
+        - match: (?x) (»)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_chevron_string_content
+    - match: '(?x) ([A-Z]) («)'
+      captures:
+        1: support.function.pod.code.raku
+        2: punctuation.section.embedded.pod.code.raku
+      push:
+        - meta_scope: meta.pod.c.raku
+        - meta_content_scope: markup.raw.code.raku
+        - match: (?x) (»)
+          captures:
+            1: punctuation.section.embedded.pod.code.raku
+          pop: true
+        - include: comment-block-syntax
+        - include: scope:source.quoting.raku#q_chevron_string_content
+  hex_escapes:
+    - match: '(?x) (\\x) ( \[ ) ( [\dA-Fa-f]+ ) ( \] )'
+      scope: punctuation.hex.raku
+      captures:
+        1: keyword.punctuation.hex.raku
+        2: keyword.operator.bracket.open.raku
+        3: routine.name.hex.raku
+        4: keyword.operator.bracket.close.raku
+  interpolation:
+    - match: |-
+        (?x)
+        (?<!\\)
+        (\$|@|%|&)
+        (?!\$)
+        (\.|\*|:|!|\^|~|=|\?)?  # Twigils
+        ([\p{Alpha}_])             # Must start with Alpha or underscore
+        (
+           [\p{Digit}\p{Alpha}_]  # have alphanum/underscore, or a ' or -
+        |                           # followed by an Alpha or underscore
+           [\-'] [\p{Alpha}_]
+        )*
+        ( \[ .* \] )?             # postcircumfix [ ]
+        ## methods
+        (?:
+          (?:
+            ( \. )
+            (
+               [\p{Alpha}]
+                (?:
+                  [\p{Digit}\p{Alpha}_]  # have alphanum/underscore, or a ' or -
+                |                          # followed by an Alpha or underscore
+                  [\-'] [\p{Alpha}_]
+                )*
+
+            )
+          )?
+          ( \( .*?  \) )
+        )?
+      scope: variable.other.identifier.interpolated.raku
+      captures:
+        1: variable.other.identifier.sigil.raku
+        2: support.class.twigil.interpolated.raku
+        6: keyword.operator.dot.raku
+        7: support.function.raku
+    - include: hex_escapes
+    - include: regexp-variables
+    - match: '(?x) (?<! m|rx|m:i|rx:i) (\{)'
+      captures:
+        1: punctuation.section.embedded.begin.raku
+      push:
+        - meta_scope: meta.interpolation.raku
+        - match: '(\})'
+          captures:
+            1: punctuation.section.embedded.end.raku
+          pop: true
+        - include: main
+  numbers:
+    - match: |-
+        (?x)
+        (?<= ^ | [=,;^\s{\[(/] | \.\. )
+        [-−+]?
+        0[bodx]\w+
+      scope: constant.numeric.radix.raku
+    - match: |-
+        (?x)
+                  (?<= ^ | [×÷*=,:;^\s{\[(/] | \.\. | … )
+                  (?: \^? [+\-−] )?
+        (?:
+            (?: \d+ (?: [\_\d]+ \d )? )
+            (?: \.  \d+ (?: [\_\d]+ \d )? )?
+        )
+        (?:  e  (?:[-−+])? \d+ (?: [\_\d]+ \d )? )?
+      scope: constant.numeric.raku
+    - match: |-
+        (?x)
+                  (?<= ^ | [×÷*=,:;^\s{\[(/] | \.\. )
+                  (?: [+-−] )?
+        (?:
+            (?: \.  \d+ (?: [\_\d]+ \d )? )
+        )
+        (?:  e  (?:[-−+])? \d+ (?: [\_\d]+ \d )? )?
+      scope: constant.numeric.raku
+  p5_escaped_char:
+    - match: \\\d+
+      scope: constant.character.escape.perl
+    - match: '\\c[^\s\\]'
+      scope: constant.character.escape.perl
+    - match: '\\g(?:\{(?:\w*|-\d+)\}|\d+)'
+      scope: constant.character.escape.perl
+    - match: '\\k(?:\{\w*\}|<\w*>|''\w*'')'
+      scope: constant.character.escape.perl
+    - match: '\\N\{[^\}]*\}'
+      scope: constant.character.escape.perl
+    - match: '\\o\{\d*\}'
+      scope: constant.character.escape.perl
+    - match: '\\(?:p|P)(?:\{\w*\}|P)'
+      scope: constant.character.escape.perl
+    - match: '\\x(?:[0-9a-zA-Z]{2}|\{\w*\})?'
+      scope: constant.character.escape.perl
+    - match: \\.
+      scope: constant.character.escape.perl
+  p5_regex:
+    - match: '(?x)(?<![\w\/])(m|rx) \s*((?:\s*:\w+)*)?(:P5)((?:\s*:\w+)*)?\s* (\{)'
+      captures:
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: entity.name.section.p5.adverb.regexp.raku
+        4: entity.name.section.adverb.regexp.raku
+        5: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.p5.raku
+        - match: '(?<!\\)(\})([gmixXsuUAJ]+)?'
+          captures:
+            1: punctuation.definition.regexp.raku
+            2: invalid.illegal.p5.regexp.modifier.raku
+          pop: true
+        - include: p5_escaped_char
+        - include: scope:source.quoting.raku#q_brace_string_content
+    - match: '(?x)(?<![\w\/])(m|rx) \s*((?:\s*:\w+)*)?(:P5)((?:\s*:\w+)*)?\s* (\[)'
+      captures:
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: entity.name.section.p5.adverb.regexp.raku
+        4: entity.name.section.adverb.regexp.raku
+        5: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.p5.raku
+        - match: '(?<!\\)(\])([gmixXsuUAJ]+)?'
+          captures:
+            1: punctuation.definition.regexp.raku
+            2: invalid.illegal.p5.regexp.modifier.raku
+          pop: true
+        - include: p5_escaped_char
+        - include: scope:source.quoting.raku#q_bracket_string_content
+    - match: '(?x)(?<![\w\/])(m|rx) \s*((?:\s*:\w+)*)?(:P5)((?:\s*:\w+)*)?\s* (\/)'
+      captures:
+        1: string.regexp.construct.raku
+        2: entity.name.section.adverb.regexp.raku
+        3: entity.name.section.p5.adverb.regexp.raku
+        4: entity.name.section.adverb.regexp.raku
+        5: punctuation.definition.regexp.raku
+      push:
+        - meta_content_scope: string.regexp.p5.raku
+        - match: '(?<!\\)(\/)([gmixXsuUAJ]+)?'
+          captures:
+            1: punctuation.definition.regexp.raku
+            2: invalid.illegal.p5.regexp.modifier.raku
+          pop: true
+        - include: p5_escaped_char
+        - include: scope:source.quoting.raku#q_slash_string_content
+  q_right_double_right_double_string_content:
+    - match: ”
+      push:
+        - match: ”
+          pop: true
+        - include: q_right_double_right_double_string_content
+  regexp-variables:
+    - match: \$(?=\<)
+      captures:
+        0: variable.other.identifier.sigil.regexp.perl6
+      push:
+        - meta_scope: meta.match.variable.raku
+        - match: '(?![\w\<\>])'
+          pop: true
+        - match: '(\<)([\w\-]+)(\>)'
+          captures:
+            1: support.class.match.name.delimiter.regexp.raku
+            2: variable.other.identifier.regexp.perl6
+            3: support.class.match.name.delimiter.regexp.raku
+  shellquotes:
+    - match: '([qQ]x)\s*({{)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: '}}'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '([qQ]x)\s*({)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: '}'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '([qQ]x)\s*(\[\[)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: '\]\]'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '([Qq]x)\s*(\[)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: '\]'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '([Qq]x)\s*(\|)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: \|
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '([Qq]x)\s*(\/)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.single.raku
+        - match: (?<!\\)\/
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - match: \\\/
+          scope: constant.character.escape.raku
+        - include: scope:source.quoting.raku#q_single_string_content
+    - match: '(qqx)\s*({{)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: '}}'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+    - match: '(qqx)\s*({)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: '}'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+    - match: '(qqx)\s*(\[\[)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: '\]\]'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+    - match: '(qqx)\s*(\[)'
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: '\]'
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+    - match: (qqx)\s*(\|)
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: \|
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+    - match: (qqx)\s*(\/)
+      captures:
+        1: string.quoted.q.shell.operator.raku
+        2: punctuation.section.embedded.shell.begin.raku
+      push:
+        - meta_scope: meta.shell.quote.double.raku
+        - match: (?<!\\)\/
+          captures:
+            0: punctuation.section.embedded.shell.begin.raku
+          pop: true
+        - match: \\\/
+          scope: constant.character.escape.raku
+        - include: interpolation
+        - include: variables
+        - include: scope:source.shell
+  special_variables:
+    - match: '(?x) [\$\@](?=[\s,;\{\[\(])| (?<=[\(\,])\s*%(?![\w\*\!\?\.\^:=~])| \$_| \$\/| \$\!(?!\w)| \$\d(?!\w)'
+      scope: keyword.other.special-method.raku
+  variables:
+    - include: regexp-variables
+    - match: |-
+        (?x)
+        (\$|@|%|&)
+        (\.|\*|:|!|\^|~|=|\?)?
+        (
+            (?:[\p{Alpha}_])           # Must start with Alpha or underscore
+            (?:
+               [\p{Digit}\p{Alpha}_]  # have alphanum/underscore, or a ' or -
+            |                           # followed by an Alpha or underscore
+               [\-'] [\p{Alpha}_]
+            )*
+        )
+      scope: meta.variable.container.raku
+      captures:
+        1: variable.other.identifier.sigil.raku
+        2: support.class.twigil.raku
+        3: variable.other.identifier.raku

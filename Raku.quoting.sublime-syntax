@@ -1,0 +1,1132 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: Quoting in Raku
+file_extensions: []
+scope: source.quoting.raku
+contexts:
+  main:
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_paren.quote.raku
+        - match: \)\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_triple_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_paren.quote.raku
+        - match: \\\\\)\)\)|(?<!\\)\)\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(\(\(|\\\)\)\)
+          scope: constant.character.escape.raku
+        - include: q_triple_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\(\()'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.triple_paren.quote.raku
+        - match: \\\\\)\)\)|(?<!\\)\)\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(\(\(|\\\)\)\)
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_triple_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_bracket.quote.raku
+        - match: '\]\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_triple_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_bracket.quote.raku
+        - match: '\\\\\]\]\]|(?<!\\)\]\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[\[\[|\\\]\]\]'
+          scope: constant.character.escape.raku
+        - include: q_triple_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[\[)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.triple_bracket.quote.raku
+        - match: '\\\\\]\]\]|(?<!\\)\]\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[\[\[|\\\]\]\]'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_triple_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\{\{\{)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_brace.quote.raku
+        - match: '\}\}\}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_triple_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\{\{\{)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_brace.quote.raku
+        - match: '\\\\\}\}\}|(?<!\\)\}\}\}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\{\{\{|\\\}\}\}'
+          scope: constant.character.escape.raku
+        - include: q_triple_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\{\{\{)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.triple_brace.quote.raku
+        - match: '\\\\\}\}\}|(?<!\\)\}\}\}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\{\{\{|\\\}\}\}'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_triple_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_angle.quote.raku
+        - match: '>>>'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_triple_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.triple_angle.quote.raku
+        - match: \\\\>>>|(?<!\\)>>>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<<<|\\>>>
+          scope: constant.character.escape.raku
+        - include: q_triple_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<<)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.triple_angle.quote.raku
+        - match: \\\\>>>|(?<!\\)>>>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<<<|\\>>>
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_triple_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_angle.quote.raku
+        - match: '>>'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_double_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_angle.quote.raku
+        - match: \\\\>>|(?<!\\)>>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<<|\\>>
+          scope: constant.character.escape.raku
+        - include: q_double_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<<)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.double_angle.quote.raku
+        - match: \\\\>>|(?<!\\)>>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<<|\\>>
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_double_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_paren.quote.raku
+        - match: \)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_double_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_paren.quote.raku
+        - match: \\\\\)\)|(?<!\\)\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(\(|\\\)\)
+          scope: constant.character.escape.raku
+        - include: q_double_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\(\()'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.double_paren.quote.raku
+        - match: \\\\\)\)|(?<!\\)\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(\(|\\\)\)
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_double_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_bracket.quote.raku
+        - match: '\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_double_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_bracket.quote.raku
+        - match: '\\\\\]\]|(?<!\\)\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[\[|\\\]\]'
+          scope: constant.character.escape.raku
+        - include: q_double_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[\[)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.double_bracket.quote.raku
+        - match: '\\\\\]\]|(?<!\\)\]\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[\[|\\\]\]'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_double_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({{)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_brace.quote.raku
+        - match: '}}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_double_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({{)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double_brace.quote.raku
+        - match: '\\\\}}|(?<!\\)}}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\{{|\\}}'
+          scope: constant.character.escape.raku
+        - include: q_double_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({{)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.double_brace.quote.raku
+        - match: '\\\\}}|(?<!\\)}}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\{{|\\}}'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_double_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.brace.quote.raku
+        - match: '}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.brace.quote.raku
+        - match: '\\\\}|(?<!\\)}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\{|\\}'
+          scope: constant.character.escape.raku
+        - include: q_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*({)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.brace.quote.raku
+        - match: '\\\\}|(?<!\\)}'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\{|\\}'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_brace_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.angle.quote.raku
+        - match: '>'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.angle.quote.raku
+        - match: \\\\>|(?<!\\)>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<|\\>
+          scope: constant.character.escape.raku
+        - include: q_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(<)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.angle.quote.raku
+        - match: \\\\>|(?<!\\)>
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\<|\\>
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_angle_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.paren.quote.raku
+        - match: \)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+(\()'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.paren.quote.raku
+        - match: \\\\\)|(?<!\\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(|\\\)
+          scope: constant.character.escape.raku
+        - include: q_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+(\()'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.paren.quote.raku
+        - match: \\\\\)|(?<!\\)\)
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\\(|\\\)
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_paren_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.bracket.quote.raku
+        - match: '\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.bracket.quote.raku
+        - match: '\\\\\]|(?<!\\)\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[|\\\]'
+          scope: constant.character.escape.raku
+        - include: q_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(\[)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.bracket.quote.raku
+        - match: '\\\\\]|(?<!\\)\]'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: '\\\[|\\\]'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_bracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(“)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_double_right_double.quote.raku
+        - match: ”
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_left_double_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(“)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_double_right_double.quote.raku
+        - match: \\\\”|(?<!\\)”
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\“|\\”
+          scope: constant.character.escape.raku
+        - include: q_left_double_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(“)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.left_double_right_double.quote.raku
+        - match: \\\\”|(?<!\\)”
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\“|\\”
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_left_double_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(„)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_double-low-q_right_double.quote.raku
+        - match: ”|“
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_left_double-low-q_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(„)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_double-low-q_right_double.quote.raku
+        - match: \\\\”|“|(?<!\\)”|“
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\„|\\”|“
+          scope: constant.character.escape.raku
+        - include: q_left_double-low-q_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(„)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.left_double-low-q_right_double.quote.raku
+        - match: \\\\”|“|(?<!\\)”|“
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\„|\\”|“
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_left_double-low-q_right_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‘)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_single_right_single.quote.raku
+        - match: ’
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_left_single_right_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‘)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.left_single_right_single.quote.raku
+        - match: \\\\’|(?<!\\)’
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\‘|\\’
+          scope: constant.character.escape.raku
+        - include: q_left_single_right_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‘)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.left_single_right_single.quote.raku
+        - match: \\\\’|(?<!\\)’
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\‘|\\’
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_left_single_right_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‚)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.low-q_left_single.quote.raku
+        - match: ‘
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_low-q_left_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‚)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.low-q_left_single.quote.raku
+        - match: \\\\‘|(?<!\\)‘
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\‚|\\‘
+          scope: constant.character.escape.raku
+        - include: q_low-q_left_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(‚)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.low-q_left_single.quote.raku
+        - match: \\\\‘|(?<!\\)‘
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\‚|\\‘
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_low-q_left_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(「)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.fw_cornerbracket.quote.raku
+        - match: 」
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_fw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(「)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.fw_cornerbracket.quote.raku
+        - match: \\\\」|(?<!\\)」
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\「|\\」
+          scope: constant.character.escape.raku
+        - include: q_fw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(「)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.fw_cornerbracket.quote.raku
+        - match: \\\\」|(?<!\\)」
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\「|\\」
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_fw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(｢)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.hw_cornerbracket.quote.raku
+        - match: ｣
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_hw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(｢)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.hw_cornerbracket.quote.raku
+        - match: \\\\｣|(?<!\\)｣
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\｢|\\｣
+          scope: constant.character.escape.raku
+        - include: q_hw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(｢)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.hw_cornerbracket.quote.raku
+        - match: \\\\｣|(?<!\\)｣
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\｢|\\｣
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_hw_cornerbracket_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(«)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.chevron.quote.raku
+        - match: »
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_chevron_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(«)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.chevron.quote.raku
+        - match: \\\\»|(?<!\\)»
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\«|\\»
+          scope: constant.character.escape.raku
+        - include: q_chevron_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(«)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.chevron.quote.raku
+        - match: \\\\»|(?<!\\)»
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\«|\\»
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_chevron_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(⟅)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.s-shaped-bag-delimiter.quote.raku
+        - match: ⟆
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_s-shaped-bag-delimiter_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(⟅)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.s-shaped-bag-delimiter.quote.raku
+        - match: \\\\⟆|(?<!\\)⟆
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\⟅|\\⟆
+          scope: constant.character.escape.raku
+        - include: q_s-shaped-bag-delimiter_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(⟅)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.s-shaped-bag-delimiter.quote.raku
+        - match: \\\\⟆|(?<!\\)⟆
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\⟅|\\⟆
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_s-shaped-bag-delimiter_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(/)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.slash.quote.raku
+        - match: /
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_slash_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(/)'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.slash.quote.raku
+        - match: \\\\/|(?<!\\)/
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\/
+          scope: constant.character.escape.raku
+        - include: q_slash_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(/)'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.slash.quote.raku
+        - match: \\\\/|(?<!\\)/
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\/
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_slash_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+('')'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.single.quote.raku
+        - match: "'"
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+('')'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.single.quote.raku
+        - match: \\\\'|(?<!\\)'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\'
+          scope: constant.character.escape.raku
+        - include: q_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s+('')'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.single.quote.raku
+        - match: \\\\'|(?<!\\)'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\'
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_single_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(")'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double.quote.raku
+        - match: '"'
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - include: q_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(")'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.double.quote.raku
+        - match: \\\\"|(?<!\\)"
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\"
+          scope: constant.character.escape.raku
+        - include: q_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (qq(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*(")'
+      captures:
+        1: string.quoted.qq.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.qq.double.quote.raku
+        - match: \\\\"|(?<!\\)"
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+        - match: \\"
+          scope: constant.character.escape.raku
+        - include: qq_character_escape
+        - include: scope:source.raku#interpolation
+        - include: q_double_string_content
+    - match: '(?x) (?<=^|[\[\]\s\(\){},;]) (q|qq|Q(?:x|w|ww|v|s|a|h|f|c|b|p)?) ((?: \s*:(?: x|exec|w|words|ww|quotewords|v|val|q|single|double| s|scalar|a|array|h|hash|f|function|c|closure|b|blackslash| regexp|substr|trans|codes|p|path|nfkc|nfkd ) )*) \s*([^\p{Ps}\p{Pe}\p{Pi}\p{Pf}\w\s])'
+      captures:
+        1: string.quoted.q.operator.raku
+        2: support.function.quote.adverb.raku
+        3: punctuation.definition.string.raku
+      push:
+        - meta_content_scope: string.quoted.q.any.quote.raku
+        - match: \3
+          captures:
+            0: punctuation.definition.string.raku
+          pop: true
+  q_angle_string_content:
+    - match: <
+      push:
+        - match: \\\\>|(?<!\\)>
+          pop: true
+        - include: q_angle_string_content
+  q_brace_string_content:
+    - match: '{'
+      push:
+        - match: '\\\\}|(?<!\\)}'
+          pop: true
+        - include: q_brace_string_content
+  q_bracket_string_content:
+    - match: '\['
+      push:
+        - match: '\\\\\]|(?<!\\)\]'
+          pop: true
+        - include: q_bracket_string_content
+  q_chevron_string_content:
+    - match: «
+      push:
+        - match: \\\\»|(?<!\\)»
+          pop: true
+        - include: q_chevron_string_content
+  q_double_angle_string_content:
+    - match: '<<'
+      push:
+        - match: \\\\>>|(?<!\\)>>
+          pop: true
+        - include: q_double_angle_string_content
+  q_double_brace_string_content:
+    - match: '{{'
+      push:
+        - match: '\\\\}}|(?<!\\)}}'
+          pop: true
+        - include: q_double_brace_string_content
+  q_double_bracket_string_content:
+    - match: '\[\['
+      push:
+        - match: '\\\\\]\]|(?<!\\)\]\]'
+          pop: true
+        - include: q_double_bracket_string_content
+  q_double_paren_string_content:
+    - match: \(\(
+      push:
+        - match: \\\\\)\)|(?<!\\)\)\)
+          pop: true
+        - include: q_double_paren_string_content
+  q_double_string_content:
+    - match: '"'
+      push:
+        - match: \\\\"|(?<!\\)"
+          pop: true
+        - include: q_double_string_content
+  q_fw_cornerbracket_string_content:
+    - match: 「
+      push:
+        - match: \\\\」|(?<!\\)」
+          pop: true
+        - include: q_fw_cornerbracket_string_content
+  q_hw_cornerbracket_string_content:
+    - match: ｢
+      push:
+        - match: \\\\｣|(?<!\\)｣
+          pop: true
+        - include: q_hw_cornerbracket_string_content
+  q_left_double-low-q_right_double_string_content:
+    - match: „
+      push:
+        - match: \\\\”|“|(?<!\\)”|“
+          pop: true
+        - include: q_left_double-low-q_right_double_string_content
+  q_left_double_right_double_string_content:
+    - match: “
+      push:
+        - match: \\\\”|(?<!\\)”
+          pop: true
+        - include: q_left_double_right_double_string_content
+  q_left_single_right_single_string_content:
+    - match: ‘
+      push:
+        - match: \\\\’|(?<!\\)’
+          pop: true
+        - include: q_left_single_right_single_string_content
+  q_low-q_left_single_string_content:
+    - match: ‚
+      push:
+        - match: \\\\‘|(?<!\\)‘
+          pop: true
+        - include: q_low-q_left_single_string_content
+  q_paren_string_content:
+    - match: \(
+      push:
+        - match: \\\\\)|(?<!\\)\)
+          pop: true
+        - include: q_paren_string_content
+  q_right_double_right_double_string_content:
+    - match: ”
+      push:
+        - match: ”
+          pop: true
+        - include: q_right_double_right_double_string_content
+  q_s-shaped-bag-delimiter_string_content:
+    - match: ⟅
+      push:
+        - match: \\\\⟆|(?<!\\)⟆
+          pop: true
+        - include: q_s-shaped-bag-delimiter_string_content
+  q_single_string_content:
+    - match: "'"
+      push:
+        - match: \\\\'|(?<!\\)'
+          pop: true
+        - include: q_single_string_content
+  q_slash_string_content:
+    - match: /
+      push:
+        - match: \\\\/|(?<!\\)/
+          pop: true
+        - include: q_slash_string_content
+  q_triple_angle_string_content:
+    - match: '<<<'
+      push:
+        - match: \\\\>>>|(?<!\\)>>>
+          pop: true
+        - include: q_triple_angle_string_content
+  q_triple_brace_string_content:
+    - match: '\{\{\{'
+      push:
+        - match: '\\\\\}\}\}|(?<!\\)\}\}\}'
+          pop: true
+        - include: q_triple_brace_string_content
+  q_triple_bracket_string_content:
+    - match: '\[\[\['
+      push:
+        - match: '\\\\\]\]\]|(?<!\\)\]\]\]'
+          pop: true
+        - include: q_triple_bracket_string_content
+  q_triple_paren_string_content:
+    - match: \(\(\(
+      push:
+        - match: \\\\\)\)\)|(?<!\\)\)\)\)
+          pop: true
+        - include: q_triple_paren_string_content
+  qq_character_escape:
+    - match: '(?x) \\[abtnfre\\\{\}] | \\'
+      scope: constant.character.escape.raku
